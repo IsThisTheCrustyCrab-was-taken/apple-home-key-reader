@@ -58,11 +58,8 @@ class Service:
             self.mqttTopic = mqttConfig["topic"]
             self.mqttClient.on_connect = self.on_connect
             self.mqttClient.on_message = self.on_message
-
-            # TODO: refactor to runner
-            self.mqttClient.connect(mqttConfig["host"], mqttConfig["port"], 60)
-            self.mqttClient.loop_forever()
-
+            self.mqttHost = mqttConfig["host"]
+            self.mqttPort = mqttConfig["port"]
         try:
             self.hardware_finish_color = HardwareFinishColor[finish.upper()]
         except KeyError:
@@ -80,6 +77,7 @@ class Service:
 
         self._run_flag = True
         self._runner = None
+        self._mqtt_runner = None
 
     def on_endpoint_authenticated(self, endpoint):
         """This method will be called when an endpoint is authenticated"""
@@ -94,11 +92,21 @@ class Service:
             exception_delay=5,
             start=True,
         )
+        self._mqtt_runner = create_runner(
+            name="mqtt",
+            target=self.start_mqtt,
+            flag=attrgetter("_run_flag"),
+            delay=0,
+            exception_delay=5,
+            start=True,
+        )
 
     def stop(self):
         self._run_flag = False
         if self._runner is not None:
             self._runner.join()
+        if self._mqtt_runner is not None:
+            self._mqtt_runner.join()
 
     def update_hap_pairings(self, issuer_public_keys):
         issuers = {
@@ -358,3 +366,7 @@ class Service:
         log.info(msg.topic+" "+str(msg.payload))
         print(msg.payload)
         self.on_endpoint_authenticated(self)
+
+    def start_mqtt(self):
+        self.mqttClient.connect(self.mqttHost, self.mqttPort, 60)
+        self.mqttClient.loop_forever()
