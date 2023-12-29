@@ -356,4 +356,5 @@ class Service:
 
     def on_message(self, client, userdata, msg):
         log.info(msg.topic+" "+str(msg.payload))
+        print(msg.payload)
         self.on_endpoint_authenticated(self)
