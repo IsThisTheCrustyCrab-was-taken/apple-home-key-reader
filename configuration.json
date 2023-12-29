@@ -18,6 +18,11 @@
         "persist": "homekey.json",
         "express": true,
         "finish": "silver",
-        "flow": "fast"
+        "flow": "fast",
+        "mqtt": {
+            "host": "hubpi.udm",
+            "port": 1883,
+            "topic": "wardrobelock/set"
+        }
     }
 }

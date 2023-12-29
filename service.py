@@ -3,6 +3,7 @@ import logging
 import time
 import os
 from operator import attrgetter
+import paho.mqtt.client as mqtt
 
 from entity import (
     Issuer,
@@ -46,10 +47,21 @@ class Service:
         express: bool = True,
         finish: str = "silver",
         flow: str = "fast",
+        mqttConfig: dict = None,
     ) -> None:
         self.repository = repository
         self.clf = clf
         self.express = express in (True, "True", "true", "1")
+
+        if mqttConfig is not None:
+            self.mqttClient = mqtt.Client()
+            self.mqttTopic = mqttConfig["topic"]
+            self.mqttClient.on_connect = self.on_connect
+            self.mqttClient.on_message = self.on_message
+
+            # TODO: refactor to runner
+            self.mqttClient.connect(mqttConfig["host"], mqttConfig["port"], 60)
+            self.mqttClient.loop_forever()
 
         try:
             self.hardware_finish_color = HardwareFinishColor[finish.upper()]
@@ -335,3 +347,13 @@ class Service:
     def get_configuration_state(self):
         log.info("get_configuration_state")
         return 0
+
+    ## MQTT
+
+    def on_connect(self, client, userdata, flags, rc):
+        log.info("Connected with result code "+str(rc))
+        client.subscribe(self.mqttTopic)
+
+    def on_message(self, client, userdata, msg):
+        log.info(msg.topic+" "+str(msg.payload))
+        self.on_endpoint_authenticated(self)
