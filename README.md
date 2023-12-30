@@ -94,6 +94,7 @@ Project is split into following primary modules:
 - `accessory.py` - service definitions for HAP, contains no logic, with it forwarded to `service.py`;
 - `service.py` - implements core application functionality, parsing HAP messages and generating responses to them, initiating NFC communication.
 - `homekey.py` - homekey NFC part of the protocol implementation;  
+- `lock.py` - the physical lock with which the reader is paired. Contains all lock-related logic, such as opening, closing, etc.
 
 Other modules:
 - `repository.py` - implements homekey configuration state storage;

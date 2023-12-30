@@ -29,6 +29,7 @@ class Lock(Accessory):
         log.info(
             f"Toggling lock state due to endpoint authentication event {self._lock_target_state} -> {self._lock_current_state} {endpoint}"
         )
+        # TODO: motor movement should be done here (probably in the function below)
         self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
         self._lock_current_state = self._lock_target_state
         self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
@@ -64,6 +65,7 @@ class Lock(Accessory):
         self.service_lock_mechanism = self.add_preload_service("LockMechanism")
 
         self.lock_current_state = self.service_lock_mechanism.configure_char(
+            # TODO: Needs to be changed according to the current state on startup
             "LockCurrentState", getter_callback=self.get_lock_current_state, value=0
         )
 
@@ -71,6 +73,7 @@ class Lock(Accessory):
             "LockTargetState",
             getter_callback=self.get_lock_target_state,
             setter_callback=self.set_lock_target_state,
+            # TODO: Needs to be changed according to the current state on startup
             value=0,
         )
 
@@ -113,6 +116,7 @@ class Lock(Accessory):
 
     def get_lock_current_state(self):
         log.info("get_lock_current_state")
+        # TODO: Needs to be changed according to the current state of the lock
         return self._lock_current_state
 
     def get_lock_target_state(self):
@@ -121,6 +125,7 @@ class Lock(Accessory):
 
     def set_lock_target_state(self, value):
         log.info(f"set_lock_target_state {value}")
+        # TODO: motor movement should be done here
         self._lock_target_state = self._lock_current_state = value
         self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
         return self._lock_target_state

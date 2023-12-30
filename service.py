@@ -356,7 +356,7 @@ class Service:
         log.info("get_configuration_state")
         return 0
 
-    ## MQTT
+    """MQTT stuff"""
 
     def on_connect(self, client, userdata, flags, rc):
         log.info("Connected with result code "+str(rc))
