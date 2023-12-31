@@ -47,16 +47,16 @@ class DoorLock:
         self.motor = Motor(forward=up_pin, backward=down_pin, enable=pwm_pin)
 
         self.top_endstop = Button(top_endstop_pin)
-        self.bottom_endstop = Button(bottom_endstop_pin)
+        self.bottom_endstop = Button(bottom_endstop_pin, bounce_time=0.3)
         self.door_switch = Button(door_switch_pin)
         self.contact = DigitalOutputDevice(contact_pin, active_high=False)
 
-        self.top_endstop.hold_time = 0.2
+        self.top_endstop.hold_time = 0.1
         self.bottom_endstop.hold_time = 0.1
         self.door_switch.hold_time = 2
         self.contact.on()
-        self.top_endstop.when_activated = self.on_opened
-        self.bottom_endstop.when_activated = self.on_closed
+        self.top_endstop.when_held = self.on_opened
+        self.bottom_endstop.when_held = self.on_closed
         self.door_switch.when_held = self.close
 
     def close(self):
