@@ -23,7 +23,7 @@ class DoorLock:
     def doNothing(self):
         pass
 
-    def __init__(self, on_open=None, on_close=None):
+    def __init__(self, on_open=None, on_close=None, closing_function=None):
         # Input pins
         top_endstop_pin = 13
         bottom_endstop_pin = 19
@@ -38,6 +38,8 @@ class DoorLock:
             on_open = self.doNothing
         if on_close is None:
             on_close = self.doNothing
+        if closing_function is None:
+            self.closing_function = self.doNothing
 
         self.on_open = on_open
         self.on_close = on_close
@@ -61,7 +63,7 @@ class DoorLock:
 
     def close_if_door_closed(self):
         if self.door_switch.is_active:
-            self.close()
+            self.closing_function()
 
     def close(self):
         if self.top_endstop.is_active or self.motor.value != 0:

@@ -17,7 +17,11 @@ class Lock(Accessory):
         super().__init__(*args, **kwargs)
         self._last_client_public_keys = None
 
-        self.lock = DoorLock(on_open=self.lock_done, on_close=self.lock_done)
+        self.lock = DoorLock(
+            on_open=self.lock_done,
+            on_close=self.lock_done,
+            closing_function=self.set_lock_state_closed
+        )
         self._lock_target_state = 0
         self._lock_current_state = 0
 
@@ -128,6 +132,9 @@ class Lock(Accessory):
     def get_lock_target_state(self):
         log.info("get_lock_target_state")
         return self._lock_target_state
+
+    def set_lock_state_closed(self):
+        self.set_lock_target_state(1)
 
     def set_lock_target_state(self, value):
         log.info(f"set_lock_target_state {value}")
