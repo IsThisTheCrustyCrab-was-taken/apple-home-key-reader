@@ -16,7 +16,6 @@ Motor:             |
     // Set either up and down high to move in that direction, enable both to brake
 """
 
-from enum import Enum
 from gpiozero import Motor, DigitalInputDevice, DigitalOutputDevice, Button
 
 
@@ -28,14 +27,14 @@ class DoorLock:
         door_switch_pin = 6
         contact_pin = 26
         # Motor pins
-        pwm_pin = 2
-        up_pin = 3
-        down_pin = 4
+        pwm_pin = 17
+        up_pin = 22
+        down_pin = 27
 
         self.on_open = on_open
         self.on_close = on_close
 
-        self.motor_speed = 0.25
+        self.motor_speed = 0.15
         # Setup Input pins
         self.motor = Motor(forward=up_pin, backward=down_pin, enable=pwm_pin)
 
@@ -45,7 +44,7 @@ class DoorLock:
         self.contact = DigitalOutputDevice(contact_pin)
 
         self.door_switch.hold_time = 2
-        self.contact.off()
+        self.contact.on()
         self.top_endstop.when_activated = self.on_opened
         self.bottom_endstop.when_activated = self.on_closed
         self.door_switch.when_held = self.close
@@ -71,5 +70,3 @@ class DoorLock:
     @property
     def closed(self):
         return self.bottom_endstop.is_active
-
-
