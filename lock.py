@@ -6,13 +6,13 @@ Pins for the lock are hardcoded for now
 Inputs:            |
     Door switch    |  6
     Top endstop    | 13
-    Bottom endstop | 22
+    Bottom endstop | 19
     (Contact)      | 26
     // Set Contact to 1 and pull the inputs to ground
 Motor:             |
-    Pwm            |  2
-    Up             |  3
-    Down           |  4
+    Pwm            | 17
+    Up             | 22
+    Down           | 27
     // Set either up and down high to move in that direction, enable both to brake
 """
 
@@ -44,7 +44,7 @@ class DoorLock:
         self.contact = DigitalOutputDevice(contact_pin, active_high=False)
 
         self.door_switch.hold_time = 2
-        self.contact.off()
+        self.contact.on()
         self.top_endstop.when_activated = self.on_opened
         self.bottom_endstop.when_activated = self.on_closed
         self.door_switch.when_held = self.close
@@ -70,3 +70,7 @@ class DoorLock:
     @property
     def closed(self):
         return self.bottom_endstop.is_active
+
+    def unload(self):
+        for p in [self.motor, self.top_endstop, self.bottom_endstop, self.door_switch, self.contact]:
+            p.close()
