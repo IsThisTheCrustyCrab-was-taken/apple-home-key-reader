@@ -43,6 +43,7 @@ class Lock(Accessory):
             self.lock.close()
 
     def lock_done(self):
+        log.info("lock_done")
         self._lock_current_state = 1 if self.lock.closed else 0
         self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
 
