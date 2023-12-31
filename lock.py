@@ -58,9 +58,13 @@ class DoorLock:
         self.door_switch.when_held = self.close
 
     def close(self):
+        if self.top_endstop.is_active:
+            return
         self.motor.forward(self.motor_speed)
 
     def open(self):
+        if self.bottom_endstop.is_active:
+            return
         self.motor.backward(self.motor_speed)
 
     def on_opened(self):
