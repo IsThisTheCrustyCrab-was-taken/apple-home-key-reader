@@ -42,7 +42,7 @@ class DoorLock:
         self.on_open = on_open
         self.on_close = on_close
 
-        self.motor_speed = 0.15
+        self.motor_speed = 0.45
         # Setup Input pins
         self.motor = Motor(forward=up_pin, backward=down_pin, enable=pwm_pin)
 
@@ -66,7 +66,7 @@ class DoorLock:
     def close(self):
         if self.top_endstop.is_active:
             return
-        self.motor.forward(self.motor_speed)
+        self.motor.forward(self.motor_speed+0.05)
 
     def open(self):
         if self.bottom_endstop.is_active:
