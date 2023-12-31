@@ -21,7 +21,7 @@ from gpiozero import Motor, DigitalInputDevice, DigitalOutputDevice, Button
 
 class DoorLock:
     def doNothing(self):
-        pass
+        return
 
     def __init__(self, on_open=None, on_close=None, closing_function=None):
         # Input pins
