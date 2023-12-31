@@ -47,7 +47,7 @@ class DoorLock:
         self.motor = Motor(forward=up_pin, backward=down_pin, enable=pwm_pin)
 
         self.top_endstop = Button(top_endstop_pin)
-        self.bottom_endstop = Button(bottom_endstop_pin, bounce_time=0.3)
+        self.bottom_endstop = Button(bottom_endstop_pin)
         self.door_switch = Button(door_switch_pin)
         self.contact = DigitalOutputDevice(contact_pin, active_high=False)
 
