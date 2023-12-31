@@ -77,14 +77,12 @@ class DoorLock:
 
     def on_opened(self):
         if self.motor.value > 0.1:
-            print(self.motor.value)
             return
         self.motor.stop()
         self.on_open()
 
     def on_closed(self):
         if self.motor.value < -0.1:
-            print(self.motor.value)
             return
         self.motor.stop()
         self.on_close()
