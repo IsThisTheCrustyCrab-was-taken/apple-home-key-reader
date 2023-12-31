@@ -23,7 +23,7 @@ class DoorLock:
     def doNothing(self):
         pass
 
-    def __init__(self, on_open=doNothing, on_close=doNothing()):
+    def __init__(self, on_open=doNothing, on_close=doNothing):
         # Input pins
         top_endstop_pin = 13
         bottom_endstop_pin = 19
