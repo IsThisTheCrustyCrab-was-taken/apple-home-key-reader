@@ -51,12 +51,10 @@ class DoorLock:
         self.door_switch = Button(door_switch_pin)
         self.contact = DigitalOutputDevice(contact_pin, active_high=False)
 
-        self.top_endstop.hold_time = 0.1
-        self.bottom_endstop.hold_time = 0.1
         self.door_switch.hold_time = 2
         self.contact.on()
-        self.top_endstop.when_held = self.on_opened
-        self.bottom_endstop.when_held = self.on_closed
+        self.top_endstop.when_activated = self.on_closed
+        self.bottom_endstop.when_activated = self.on_opened
         self.door_switch.when_held = self.close
 
     def close(self):
@@ -70,10 +68,16 @@ class DoorLock:
         self.motor.backward(self.motor_speed)
 
     def on_opened(self):
+        if self.motor.value > 0.1:
+            print(self.motor.value)
+            return
         self.motor.stop()
         self.on_open()
 
     def on_closed(self):
+        if self.motor.value < -0.1:
+            print(self.motor.value)
+            return
         self.motor.stop()
         self.on_close()
 
