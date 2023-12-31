@@ -4,6 +4,7 @@ from pyhap.accessory import Accessory
 from pyhap.const import CATEGORY_DOOR_LOCK
 
 from service import Service
+from lock import DoorLock
 
 log = logging.getLogger()
 
@@ -16,6 +17,7 @@ class Lock(Accessory):
         super().__init__(*args, **kwargs)
         self._last_client_public_keys = None
 
+        self.lock = DoorLock(on_open=self.lock_done, on_close=self.lock_done)
         self._lock_target_state = 0
         self._lock_current_state = 0
 
@@ -25,13 +27,20 @@ class Lock(Accessory):
         self.add_nfc_access_service()
 
     def on_endpoint_authenticated(self, endpoint):
+        # locked: 1, unlocked: 0
         self._lock_target_state = 0 if self._lock_current_state else 1
         log.info(
             f"Toggling lock state due to endpoint authentication event {self._lock_target_state} -> {self._lock_current_state} {endpoint}"
         )
         # TODO: motor movement should be done here (probably in the function below)
         self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
-        self._lock_current_state = self._lock_target_state
+        if self._lock_target_state == 1:
+            self.lock.open()
+        else:
+            self.lock.close()
+
+    def lock_done(self):
+        self._lock_current_state = 1 if self.lock.closed else 0
         self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
 
     def add_preload_service(self, service, chars=None, unique_id=None):
@@ -66,15 +75,14 @@ class Lock(Accessory):
 
         self.lock_current_state = self.service_lock_mechanism.configure_char(
             # TODO: Needs to be changed according to the current state on startup
-            "LockCurrentState", getter_callback=self.get_lock_current_state, value=0
+            "LockCurrentState", getter_callback=self.get_lock_current_state, value=1 if self.lock.closed else 0
         )
 
         self.lock_target_state = self.service_lock_mechanism.configure_char(
             "LockTargetState",
             getter_callback=self.get_lock_target_state,
             setter_callback=self.set_lock_target_state,
-            # TODO: Needs to be changed according to the current state on startup
-            value=0,
+            value=1 if self.lock.closed else 0,
         )
 
         self.service_lock_management = self.add_preload_service("LockManagement")
@@ -116,7 +124,7 @@ class Lock(Accessory):
 
     def get_lock_current_state(self):
         log.info("get_lock_current_state")
-        # TODO: Needs to be changed according to the current state of the lock
+        self._lock_current_state = 1 if self.lock.closed else 0
         return self._lock_current_state
 
     def get_lock_target_state(self):
@@ -126,8 +134,11 @@ class Lock(Accessory):
     def set_lock_target_state(self, value):
         log.info(f"set_lock_target_state {value}")
         # TODO: motor movement should be done here
-        self._lock_target_state = self._lock_current_state = value
-        self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
+        self._lock_target_state = value
+        if self._lock_target_state == 1:
+            self.lock.open()
+        else:
+            self.lock.close()
         return self._lock_target_state
 
     def get_lock_version(self):
