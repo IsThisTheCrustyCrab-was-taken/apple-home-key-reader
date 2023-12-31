@@ -89,11 +89,11 @@ class DoorLock:
 
     @property
     def opened(self):
-        return self.top_endstop.is_active
+        return self.bottom_endstop.is_active
 
     @property
     def closed(self):
-        return self.bottom_endstop.is_active
+        return self.top_endstop.is_active
 
     def unload(self):
         for p in [self.motor, self.top_endstop, self.bottom_endstop, self.door_switch, self.contact]:
