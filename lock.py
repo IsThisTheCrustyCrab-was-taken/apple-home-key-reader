@@ -8,7 +8,7 @@ Inputs:            |
     Top endstop    | 13
     Bottom endstop | 19
     (Contact)      | 26
-    // Set Contact to 1 and pull the inputs to ground
+    // Set Contact to 1 and pull the inputs to ground or other way around
 Motor:             |
     Pwm            | 17
     Up             | 22
