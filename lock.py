@@ -24,7 +24,7 @@ class DoorLock:
         # Input pins
         top_endstop_pin = 13
         bottom_endstop_pin = 22
-        door_switch_pin = 6
+        door_switch_pin = 19
         contact_pin = 26
         # Motor pins
         pwm_pin = 17
