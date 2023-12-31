@@ -51,11 +51,17 @@ class DoorLock:
         self.door_switch = Button(door_switch_pin)
         self.contact = DigitalOutputDevice(contact_pin, active_high=False)
 
+        self.bottom_endstop.hold_time = 4
         self.door_switch.hold_time = 2
         self.contact.on()
         self.top_endstop.when_activated = self.on_closed
         self.bottom_endstop.when_activated = self.on_opened
+        self.bottom_endstop.when_held = self.close_if_door_closed
         self.door_switch.when_held = self.close
+
+    def close_if_door_closed(self):
+        if self.door_switch.is_active:
+            self.close()
 
     def close(self):
         if self.top_endstop.is_active:
