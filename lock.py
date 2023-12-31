@@ -64,7 +64,7 @@ class DoorLock:
             self.close()
 
     def close(self):
-        if self.top_endstop.is_active or self.motor.value != 01:
+        if self.top_endstop.is_active or self.motor.value != 0:
             return
         self.motor.forward(self.motor_speed+0.05)
 
