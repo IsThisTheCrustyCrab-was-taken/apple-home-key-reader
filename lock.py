@@ -23,8 +23,8 @@ class DoorLock:
     def __init__(self, on_open=None, on_close=None):
         # Input pins
         top_endstop_pin = 13
-        bottom_endstop_pin = 22
-        door_switch_pin = 19
+        bottom_endstop_pin = 19
+        door_switch_pin = 6
         contact_pin = 26
         # Motor pins
         pwm_pin = 17
