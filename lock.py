@@ -46,11 +46,13 @@ class DoorLock:
         # Setup Input pins
         self.motor = Motor(forward=up_pin, backward=down_pin, enable=pwm_pin)
 
-        self.top_endstop = DigitalInputDevice(top_endstop_pin, pull_up=True)
-        self.bottom_endstop = DigitalInputDevice(bottom_endstop_pin, pull_up=True)
+        self.top_endstop = Button(top_endstop_pin)
+        self.bottom_endstop = Button(bottom_endstop_pin)
         self.door_switch = Button(door_switch_pin)
         self.contact = DigitalOutputDevice(contact_pin, active_high=False)
 
+        self.top_endstop.hold_time = 0.2
+        self.bottom_endstop.hold_time = 0.1
         self.door_switch.hold_time = 2
         self.contact.on()
         self.top_endstop.when_activated = self.on_opened
