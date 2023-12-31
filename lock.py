@@ -40,6 +40,8 @@ class DoorLock:
             on_close = self.doNothing
         if closing_function is None:
             self.closing_function = self.doNothing
+        else:
+            self.closing_function = closing_function
 
         self.on_open = on_open
         self.on_close = on_close
