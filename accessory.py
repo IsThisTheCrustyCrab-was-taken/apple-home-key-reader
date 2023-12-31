@@ -40,7 +40,7 @@ class Lock(Accessory):
             self.lock.close()
 
     def lock_done(self):
-        self._lock_current_state = 1 if self.lock.closed else 0
+        self._lock_current_state = 0 if self.lock.closed else 1
         self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
 
     def add_preload_service(self, service, chars=None, unique_id=None):
@@ -75,14 +75,14 @@ class Lock(Accessory):
 
         self.lock_current_state = self.service_lock_mechanism.configure_char(
             # TODO: Needs to be changed according to the current state on startup
-            "LockCurrentState", getter_callback=self.get_lock_current_state, value=1 if self.lock.closed else 0
+            "LockCurrentState", getter_callback=self.get_lock_current_state, value=0 if self.lock.closed else 1
         )
 
         self.lock_target_state = self.service_lock_mechanism.configure_char(
             "LockTargetState",
             getter_callback=self.get_lock_target_state,
             setter_callback=self.set_lock_target_state,
-            value=1 if self.lock.closed else 0,
+            value=0 if self.lock.closed else 1,
         )
 
         self.service_lock_management = self.add_preload_service("LockManagement")
@@ -124,7 +124,7 @@ class Lock(Accessory):
 
     def get_lock_current_state(self):
         log.info("get_lock_current_state")
-        self._lock_current_state = 1 if self.lock.closed else 0
+        self._lock_current_state = 0 if self.lock.closed else 1
         return self._lock_current_state
 
     def get_lock_target_state(self):
@@ -133,7 +133,6 @@ class Lock(Accessory):
 
     def set_lock_target_state(self, value):
         log.info(f"set_lock_target_state {value}")
-        # TODO: motor movement should be done here
         self._lock_target_state = value
         if self._lock_target_state == 1:
             self.lock.open()
