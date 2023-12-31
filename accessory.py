@@ -141,6 +141,7 @@ class Lock(Accessory):
         )
         self._lock_target_state = 1
         self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
+        self.set_lock_target_state(1)
         self.lock.close()
         self.set_lock_target_state(1)
         self._lock_current_state = 1
