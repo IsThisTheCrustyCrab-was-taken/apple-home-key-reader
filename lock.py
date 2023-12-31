@@ -23,7 +23,7 @@ class DoorLock:
     def doNothing(self):
         pass
 
-    def __init__(self, on_open=doNothing, on_close=doNothing):
+    def __init__(self, on_open=None, on_close=None):
         # Input pins
         top_endstop_pin = 13
         bottom_endstop_pin = 19
@@ -33,6 +33,11 @@ class DoorLock:
         pwm_pin = 17
         up_pin = 22
         down_pin = 27
+
+        if on_open is None:
+            on_open = self.doNothing
+        if on_close is None:
+            on_close = self.doNothing
 
         self.on_open = on_open
         self.on_close = on_close
