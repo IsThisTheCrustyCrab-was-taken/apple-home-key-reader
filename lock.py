@@ -61,7 +61,7 @@ class DoorLock:
         self.top_endstop.when_activated = self.on_closed
         self.bottom_endstop.when_activated = self.on_opened
         self.bottom_endstop.when_held = self.close_if_door_closed
-        self.door_switch.when_held = self.close
+        self.door_switch.when_held = self.close_if_door_closed
 
     def close_if_door_closed(self):
         if self.door_switch.is_active:
