@@ -20,7 +20,7 @@ class Lock(Accessory):
         self.lock = DoorLock(
             on_open=self.lock_done,
             on_close=self.lock_done,
-            closing_function=self.set_lock_state_closed
+            closing_function=self.close_lock
         )
         self._lock_target_state = 0
         self._lock_current_state = 0
@@ -133,8 +133,14 @@ class Lock(Accessory):
         log.info("get_lock_target_state")
         return self._lock_target_state
 
-    def set_lock_state_closed(self):
-        self.set_lock_target_state(1)
+    def close_lock(self):
+        # locked: 1, unlocked: 0
+        self._lock_target_state = 1
+        log.info(
+            f"Toggling lock state because door is closed {self._lock_target_state} -> {self._lock_current_state}"
+        )
+        self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
+        self.lock.close()
 
     def set_lock_target_state(self, value):
         log.info(f"set_lock_target_state {value}")
