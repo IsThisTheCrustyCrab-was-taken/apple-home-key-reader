@@ -35,7 +35,7 @@ class Lock(Accessory):
         # TODO: motor movement should be done here (probably in the function below)
         self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
         if self._lock_target_state == 1:
-            self.lock.open()
+            self.lock.close()
         else:
             self.lock.close()
 
@@ -135,7 +135,7 @@ class Lock(Accessory):
         log.info(f"set_lock_target_state {value}")
         self._lock_target_state = value
         if self._lock_target_state == 1:
-            self.lock.open()
+            self.lock.close()
         else:
             self.lock.close()
         return self._lock_target_state
