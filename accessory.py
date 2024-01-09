@@ -22,8 +22,8 @@ class Lock(Accessory):
             on_close=self.lock_done,
             closing_function=self.close_lock
         )
-        self._lock_target_state = 0
-        self._lock_current_state = 0
+        self._lock_target_state = 1 if self.lock.closed else 0
+        self._lock_current_state = 1 if self.lock.closed else 0
 
         self.service = service
         self.service.on_endpoint_authenticated = self.on_endpoint_authenticated
@@ -138,6 +138,11 @@ class Lock(Accessory):
         self._lock_target_state = 1
         self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
         self.lock.close()
+
+    # def open_lock(self):
+    #     self._lock_target_state = 0
+    #     self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
+    #     self.lock.open()
 
     def set_lock_target_state(self, value):
         log.info(f"set_lock_target_state {value}")
