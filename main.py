@@ -9,10 +9,12 @@ from accessory import Lock
 from util.bfclf import BroadcastFrameContactlessFrontend
 from repository import Repository
 from service import Service
+from mqtt_fingerprint_pi.fingerprint import Fingerprint
 
 # By default, this file is located in the same folder as the project
 CONFIGURATION_FILE_PATH = "configuration.json"
 
+fingerprintReader = Fingerprint("/dev/ttyUSB0")
 
 def load_configuration(path=CONFIGURATION_FILE_PATH) -> dict:
     return json.load(open(path, "r+"))
@@ -32,7 +34,8 @@ def configure_logging(config: dict):
 
 def configure_hap_accessory(config: dict, homekey_service=None):
     driver = AccessoryDriver(port=config["port"], persist_file=config["persist"])
-    accessory = Lock(driver, "NFC Lock", service=homekey_service)
+    global fingerprintReader
+    accessory = Lock(driver, "NFC Lock", service=homekey_service, fingerprintReader=fingerprintReader)
     driver.add_accessory(accessory=accessory)
     return driver, accessory
 
@@ -46,6 +49,7 @@ def configure_nfc_device(config: dict):
 
 
 def configure_homekey_service(config: dict, nfc_device, repository=None):
+    global fingerprintReader
     service = Service(
         nfc_device,
         repository=repository or Repository(config["persist"]),
@@ -53,6 +57,7 @@ def configure_homekey_service(config: dict, nfc_device, repository=None):
         finish=config.get("finish"),
         flow=config.get("flow"),
         mqttConfig=config.get("mqtt"),
+        fingerprintReader=fingerprintReader
     )
     return service
 

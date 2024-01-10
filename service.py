@@ -35,6 +35,7 @@ from util.ecp import ECP
 from util.iso7816 import ISO7816Tag
 from util.threads import create_runner
 from util.structable import pack_into_base64_string, unpack_from_base64_string
+from mqtt_fingerprint_pi.fingerprint import run
 
 log = logging.getLogger()
 
@@ -48,6 +49,7 @@ class Service:
         finish: str = "silver",
         flow: str = "fast",
         mqttConfig: dict = None,
+        fingerprintReader=None
     ) -> None:
         self.repository = repository
         self.clf = clf
@@ -74,10 +76,11 @@ class Service:
             log.warning(
                 f"Digital Key flow {flow} is not supported. Falling back to {self.flow}"
             )
-
+        self.fingerprintReader = fingerprintReader
         self._run_flag = True
         self._runner = None
         self._mqtt_runner = None
+        self._fingerprint_runner = None
 
     def on_endpoint_authenticated(self, endpoint):
         """This method will be called when an endpoint is authenticated"""
@@ -100,6 +103,14 @@ class Service:
             exception_delay=5,
             start=True,
         )
+        self._fingerprint_runner = create_runner(
+            name="fingerprint",
+            target=self.start_fingerprint,
+            flag=attrgetter("_run_flag"),
+            delay=0,
+            exception_delay=5,
+            start=True,
+        )
 
     def stop(self):
         self._run_flag = False
@@ -107,6 +118,8 @@ class Service:
             self._runner.join()
         if self._mqtt_runner is not None:
             self._mqtt_runner.join()
+        if self._fingerprint_runner is not None:
+            self._fingerprint_runner.join()
 
     def update_hap_pairings(self, issuer_public_keys):
         issuers = {
@@ -370,3 +383,6 @@ class Service:
     def start_mqtt(self):
         self.mqttClient.connect(self.mqttHost, self.mqttPort, 60)
         self.mqttClient.loop_forever()
+
+    def start_fingerprint(self):
+        run(self.fingerprintReader)
