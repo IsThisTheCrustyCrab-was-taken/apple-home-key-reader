@@ -1,0 +1,5 @@
+serial: "/dev/ttyUSB0"
+timeout: 0
+mqtt:
+  host: "hubpi.udm"
+
