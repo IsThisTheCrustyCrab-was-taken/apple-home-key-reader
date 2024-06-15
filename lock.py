@@ -4,17 +4,14 @@ Pins for the lock are hardcoded for now
     Function       |Pin (BCM GPIO - whatever that means)
     ---------------|-----------------
 Inputs:            |
-    Door switch    |  6
-    Top endstop    | 13
-    Bottom endstop | 19
-    (Contact)      | 26
+    Sense (Pull-up)| 16
+    (relay)        | 21
     // Set Contact to 1 and pull the inputs to ground or other way around
-Motor:             |
-    Pwm            | 17
-    Up             | 22
-    Down           | 27
-    // Set either up and down high to move in that direction, enable both to brake
+Relays:            |
+    Top            | 21
+    Bottom         | 20
 """
+from time import sleep
 
 from gpiozero import Motor, DigitalInputDevice, DigitalOutputDevice, Button
 
@@ -25,14 +22,10 @@ class DoorLock:
 
     def __init__(self, on_open=None, on_close=None, closing_function=None):
         # Input pins
-        top_endstop_pin = 13
-        bottom_endstop_pin = 19
-        door_switch_pin = 6
-        contact_pin = 26
+        sense_pin = 16
         # Motor pins
-        pwm_pin = 17
-        up_pin = 22
-        down_pin = 27
+        top_relay_pin = 21
+        bottom_relay_pin = 20
 
         if on_open is None:
             on_open = self.doNothing
@@ -46,57 +39,47 @@ class DoorLock:
         self.on_open = on_open
         self.on_close = on_close
 
-        self.motor_speed = 0.45
         # Setup Input pins
-        self.motor = Motor(forward=up_pin, backward=down_pin, enable=pwm_pin)
+        self.sense = DigitalInputDevice(sense_pin, pull_up=True)
+        self.top_relay = DigitalOutputDevice(top_relay_pin)
+        self.top_relay.off()
+        self.bottom_relay = DigitalOutputDevice(bottom_relay_pin)
+        self.bottom_relay.off()
 
-        self.top_endstop = Button(top_endstop_pin)
-        self.bottom_endstop = Button(bottom_endstop_pin)
-        self.door_switch = Button(door_switch_pin)
-        self.contact = DigitalOutputDevice(contact_pin, active_high=False)
-
-        self.bottom_endstop.hold_time = 4
-        self.door_switch.hold_time = 2
-        self.contact.on()
-        self.top_endstop.when_activated = self.on_closed
-        self.bottom_endstop.when_activated = self.on_opened
-        self.bottom_endstop.when_held = self.close_if_door_closed
-        self.door_switch.when_held = self.close_if_door_closed
-
-    def close_if_door_closed(self):
-        if self.door_switch.is_active:
-            self.closing_function()
-
-    def close(self):
-        if self.top_endstop.is_active or self.motor.value != 0:
-            return
-        self.motor.forward(self.motor_speed+0.05)
+        self.sense.when_activated = self.on_closed
+        self.sense.when_deactivated = self.on_opened
 
     def open(self):
-        if self.bottom_endstop.is_active or self.motor.value != 0:
-            return
-        self.motor.backward(self.motor_speed)
+        self.top_relay.on()
+        sleep(0.5)
+        self.bottom_relay.on()
+        self.on_opened()
+        sleep(5)
+        self.top_relay.off()
+        self.bottom_relay.off()
+        self.on_closed()
+
+    def close(self):
+        self.top_relay.off()
+        self.bottom_relay.off()
+        self.on_closed()
 
     def on_opened(self):
-        if self.motor.value > 0.1:
-            return
-        self.motor.stop()
         self.on_open()
 
     def on_closed(self):
-        if self.motor.value < -0.1:
-            return
-        self.motor.stop()
-        self.on_close()
+        if self.sense.is_active and self.top_relay.value == 0:
+            self.on_close()
+
 
     @property
     def opened(self):
-        return self.bottom_endstop.is_active
+        return not self.sense.is_active or self.top_relay.value == 1
 
     @property
     def closed(self):
-        return self.top_endstop.is_active
+        return self.sense.is_active and self.top_relay.value == 0
 
     def unload(self):
-        for p in [self.motor, self.top_endstop, self.bottom_endstop, self.door_switch, self.contact]:
+        for p in [self.sense, self.top_relay, self.bottom_relay]:
             p.close()
