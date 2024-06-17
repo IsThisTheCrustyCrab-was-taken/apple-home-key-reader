@@ -31,6 +31,7 @@ class Lock(Accessory):
         self.service.on_endpoint_authenticated = self.on_endpoint_authenticated
         self.add_lock_service()
         self.add_nfc_access_service()
+        self.lock.update_target_state()
 
     def on_endpoint_authenticated(self, endpoint):
         # locked: 1, unlocked: 0
