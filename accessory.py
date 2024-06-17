@@ -1,4 +1,5 @@
 import logging
+from time import sleep
 
 from pyhap.accessory import Accessory
 from pyhap.const import CATEGORY_DOOR_LOCK
@@ -18,20 +19,18 @@ class Lock(Accessory):
         self._last_client_public_keys = None
 
         self.lock = DoorLock(
-            on_open=self.lock_set_current,
-            on_close=self.lock_set_current,
             closing_function=self.close_lock,
             state_change_callback=self.lock_set_current,
             target_state_callback=self.change_target_state,
         )
-        self._lock_target_state = 1 if self.lock.closed else 0
-        self._lock_current_state = 1 if self.lock.closed else 0
 
         self.service = service
         self.service.on_endpoint_authenticated = self.on_endpoint_authenticated
         self.add_lock_service()
         self.add_nfc_access_service()
+        sleep(0.5)
         self.lock.update_target_state()
+        self.lock.update_current_state()
 
     def on_endpoint_authenticated(self, endpoint):
         # locked: 1, unlocked: 0
@@ -46,14 +45,9 @@ class Lock(Accessory):
             self.lock.close()
 
     def lock_set_current(self, state = None):
-        if not state:
-            log.info("lock_done")
-            self._lock_current_state = 1 if self.lock.closed else 0
-            self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
-        else:
-            print(f"lock_set_current {state}")
-            self._lock_current_state = state
-            self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
+        print(f"lock_set_current {state}")
+        self._lock_current_state = state
+        self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
 
     def change_target_state(self, state):
         self._lock_target_state = state
