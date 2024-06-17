@@ -18,9 +18,11 @@ class Lock(Accessory):
         self._last_client_public_keys = None
 
         self.lock = DoorLock(
-            on_open=self.lock_done,
-            on_close=self.lock_done,
-            closing_function=self.close_lock
+            on_open=self.lock_set_current,
+            on_close=self.lock_set_current,
+            closing_function=self.close_lock,
+            state_change_callback=self.lock_set_current,
+            target_state_callback=self.set_lock_target_state,
         )
         self._lock_target_state = 1 if self.lock.closed else 0
         self._lock_current_state = 1 if self.lock.closed else 0
@@ -42,10 +44,19 @@ class Lock(Accessory):
         else:
             self.lock.close()
 
-    def lock_done(self):
-        log.info("lock_done")
-        self._lock_current_state = 1 if self.lock.closed else 0
-        self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
+    def lock_set_current(self, state = None):
+        if not state:
+            log.info("lock_done")
+            self._lock_current_state = 1 if self.lock.closed else 0
+            self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
+        else:
+            print(f"lock_set_current {state}")
+            self._lock_current_state = state
+            self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
+
+    def change_target_state(self, state):
+        self._lock_target_state = state
+        self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
 
     def add_preload_service(self, service, chars=None, unique_id=None):
         """Create a service with the given name and add it to this acc."""

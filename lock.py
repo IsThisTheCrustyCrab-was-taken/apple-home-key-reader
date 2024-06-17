@@ -20,7 +20,7 @@ class DoorLock:
     def doNothing(self):
         return
 
-    def __init__(self, on_open=None, on_close=None, closing_function=None):
+    def __init__(self, on_open=None, on_close=None, closing_function=None, state_change_callback=None, target_state_callback=None):
         # Input pins
         sense_pin = 16
         # Motor pins
@@ -35,6 +35,15 @@ class DoorLock:
             self.closing_function = self.doNothing
         else:
             self.closing_function = closing_function
+
+        if state_change_callback is None:
+            self.state_change_callback = self.doNothing
+        else:
+            self.state_change_callback = state_change_callback
+        if target_state_callback is None:
+            self.target_state_callback = self.doNothing
+        else:
+            self.target_state_callback = target_state_callback
 
         self.on_open = on_open
         self.on_close = on_close
@@ -65,11 +74,15 @@ class DoorLock:
         self.on_closed()
 
     def on_opened(self):
-        self.on_open()
+        self.state_change_callback(0)
 
     def on_closed(self):
-        if self.sense.is_active and self.top_relay.value == 0:
-            self.on_close()
+        self.state_change_callback(1)
+        if self.sense.is_active:
+            self.target_state_callback(1)
+
+
+
 
 
     @property
