@@ -71,7 +71,7 @@ class DoorLock:
     def close(self):
         self.top_relay.off()
         self.bottom_relay.off()
-        self.on_closed()
+        self.update_target_state()
 
     def on_opened(self):
         self.state_change_callback(0)
