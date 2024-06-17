@@ -46,12 +46,16 @@ class Lock(Accessory):
         else:
             self.lock.close()
 
-    def lock_set_current(self, state = None):
+    def lock_set_current(self, state):
         print(f"lock_set_current {state}")
+        if self._lock_current_state == state:
+            return
         self._lock_current_state = state
         self.lock_current_state.set_value(self._lock_current_state, should_notify=True)
 
     def change_target_state(self, state):
+        if self._lock_target_state == state:
+            return
         self._lock_target_state = state
         self.lock_target_state.set_value(self._lock_target_state, should_notify=True)
 
