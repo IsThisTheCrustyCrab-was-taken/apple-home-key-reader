@@ -84,6 +84,9 @@ class DoorLock:
         target_state = 1 if self.closed and (not self.sense.is_active) else 0
         self.target_state_callback(target_state)
 
+    def update_current_state(self):
+        current_state = 1 if self.closed else 0
+        self.state_change_callback(current_state)
 
 
 
