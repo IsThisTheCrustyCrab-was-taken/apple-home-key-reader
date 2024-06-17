@@ -57,6 +57,7 @@ class DoorLock:
 
         self.sense.when_activated = self.on_closed
         self.sense.when_deactivated = self.on_opened
+        self.update_target_state()
 
     def open(self):
         self.top_relay.on()
