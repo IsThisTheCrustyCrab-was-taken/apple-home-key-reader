@@ -22,7 +22,7 @@ class Lock(Accessory):
             on_close=self.lock_set_current,
             closing_function=self.close_lock,
             state_change_callback=self.lock_set_current,
-            target_state_callback=self.set_lock_target_state,
+            target_state_callback=self.change_target_state,
         )
         self._lock_target_state = 1 if self.lock.closed else 0
         self._lock_current_state = 1 if self.lock.closed else 0
