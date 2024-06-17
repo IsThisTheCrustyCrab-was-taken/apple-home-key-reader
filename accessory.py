@@ -163,7 +163,8 @@ class Lock(Accessory):
         if self._lock_target_state == 1:
             self.lock.close()
         else:
-            self.lock.open()
+            if not self.lock.opening:
+                self.lock.open()
         return self._lock_target_state
 
     def get_lock_version(self):
