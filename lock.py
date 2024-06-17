@@ -81,8 +81,9 @@ class DoorLock:
         self.state_change_callback(1)
 
     def update_target_state(self):
-        target_state = not self.sense.is_active or self.top_relay.value == 1
-        self.target_state_callback(not target_state)
+        target_state = 1 if self.closed else 0
+        sleep(0.5)
+        self.target_state_callback(target_state)
 
 
 
