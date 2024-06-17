@@ -79,6 +79,7 @@ class DoorLock:
 
     def on_closed(self):
         self.state_change_callback(1)
+        self.update_target_state()
 
     def update_target_state(self):
         target_state = 1 if self.closed and (not self.top_relay.is_active) else 0
