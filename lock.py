@@ -82,7 +82,7 @@ class DoorLock:
 
     def update_target_state(self):
         target_state = not self.sense.is_active or self.top_relay.value == 1
-        self.target_state_callback(target_state)
+        self.target_state_callback(not target_state)
 
 
 
