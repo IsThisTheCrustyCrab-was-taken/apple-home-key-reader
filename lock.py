@@ -82,7 +82,6 @@ class DoorLock:
 
     def update_target_state(self):
         target_state = 1 if self.closed else 0
-        sleep(0.5)
         self.target_state_callback(target_state)
 
 
