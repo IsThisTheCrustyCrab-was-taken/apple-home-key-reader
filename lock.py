@@ -62,11 +62,11 @@ class DoorLock:
         self.top_relay.on()
         sleep(0.5)
         self.bottom_relay.on()
-        self.on_opened()
+        self.update_target_state()
         sleep(5)
         self.top_relay.off()
         self.bottom_relay.off()
-        self.on_closed()
+        self.update_target_state()
 
     def close(self):
         self.top_relay.off()
@@ -78,8 +78,11 @@ class DoorLock:
 
     def on_closed(self):
         self.state_change_callback(1)
-        if self.sense.is_active:
-            self.target_state_callback(1)
+
+    def update_target_state(self):
+        target_state = not self.sense.is_active or self.top_relay.value == 1
+        self.target_state_callback(target_state)
+
 
 
 
