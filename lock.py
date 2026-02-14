@@ -5,9 +5,7 @@ Pins for the lock are hardcoded for now
     ---------------|-----------------
 Inputs:            |
     Sense (Pull-up)| 16
-    (relay)        | 21
-    // Set Contact to 1 and pull the inputs to ground or other way around
-Relays:            |
+MOSFETs (active LOW):
     Top            | 21
     Bottom         | 20
 """
@@ -24,9 +22,9 @@ class DoorLock:
                  target_state_callback=None):
         # Input pins
         sense_pin = 16
-        # Motor pins
-        top_relay_pin = 21
-        bottom_relay_pin = 20
+        # MOSFET pins
+        top_mosfet_pin = 21
+        bottom_mosfet_pin = 20
 
         if on_open is None:
             on_open = self.doNothing
@@ -51,10 +49,9 @@ class DoorLock:
 
         # Setup Input pins
         self.sense = DigitalInputDevice(sense_pin, pull_up=True)
-        self.top_relay = DigitalOutputDevice(top_relay_pin)
-        self.top_relay.off()
-        self.bottom_relay = DigitalOutputDevice(bottom_relay_pin)
-        self.bottom_relay.off()
+        # Setup MOSFET pins with active_high=False (activates when pin is LOW)
+        self.top_mosfet = DigitalOutputDevice(top_mosfet_pin, active_high=False, initial_value=False)
+        self.bottom_mosfet = DigitalOutputDevice(bottom_mosfet_pin, active_high=False, initial_value=False)
 
         self.sense.when_activated = self.on_closed
         self.sense.when_deactivated = self.on_opened
@@ -64,19 +61,19 @@ class DoorLock:
         if self.opening:
             return
         self.opening = True
-        self.top_relay.on()
+        self.top_mosfet.on()  # Sets pin LOW to activate MOSFET
         sleep(0.5)
-        self.bottom_relay.on()
+        self.bottom_mosfet.on()  # Sets pin LOW to activate MOSFET
         self.update_target_state()
         sleep(5)
-        self.top_relay.off()
-        self.bottom_relay.off()
+        self.top_mosfet.off()  # Sets pin HIGH to deactivate MOSFET
+        self.bottom_mosfet.off()  # Sets pin HIGH to deactivate MOSFET
         self.update_target_state()
         self.opening = False
 
     def close(self):
-        self.top_relay.off()
-        self.bottom_relay.off()
+        self.top_mosfet.off()  # Sets pin HIGH to deactivate MOSFET
+        self.bottom_mosfet.off()  # Sets pin HIGH to deactivate MOSFET
         self.update_target_state()
 
     def on_opened(self):
@@ -87,7 +84,7 @@ class DoorLock:
         self.update_target_state()
 
     def update_target_state(self):
-        target_state = 1 if self.closed and (not self.top_relay.is_active) else 0
+        target_state = 1 if self.closed and (not self.top_mosfet.is_active) else 0
         self.target_state_callback(target_state)
 
     def update_current_state(self):
@@ -103,5 +100,5 @@ class DoorLock:
         return self.sense.is_active
 
     def unload(self):
-        for p in [self.sense, self.top_relay, self.bottom_relay]:
+        for p in [self.sense, self.top_mosfet, self.bottom_mosfet]:
             p.close()

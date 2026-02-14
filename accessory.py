@@ -29,7 +29,7 @@ class Lock(Accessory):
         self.add_lock_service()
         self.add_nfc_access_service()
         sleep(0.5)
-        self._lock_target_state = 1 if self.lock.closed and (not self.lock.top_relay.is_active) else 0
+        self._lock_target_state = 1 if self.lock.closed and (not self.lock.top_mosfet.is_active) else 0
         self._lock_current_state = 1 if self.lock.closed else 0
         self.lock.update_target_state()
         self.lock.update_target_state()
