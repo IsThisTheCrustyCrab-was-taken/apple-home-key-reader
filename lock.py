@@ -5,7 +5,7 @@ Pins for the lock are hardcoded for now
     ---------------|-----------------
 Inputs:            |
     Sense (Pull-up)| 16
-MOSFETs (active LOW):
+MOSFETs (active HIGH):
     Top            | 21
     Bottom         | 20
 """
@@ -49,9 +49,9 @@ class DoorLock:
 
         # Setup Input pins
         self.sense = DigitalInputDevice(sense_pin, pull_up=True)
-        # Setup MOSFET pins with active_high=False (activates when pin is LOW)
-        self.top_mosfet = DigitalOutputDevice(top_mosfet_pin, active_high=False, initial_value=False)
-        self.bottom_mosfet = DigitalOutputDevice(bottom_mosfet_pin, active_high=False, initial_value=False)
+        # Setup MOSFET pins with active_high=True (activates when pin is HIGH)
+        self.top_mosfet = DigitalOutputDevice(top_mosfet_pin, active_high=True, initial_value=False)
+        self.bottom_mosfet = DigitalOutputDevice(bottom_mosfet_pin, active_high=True, initial_value=False)
 
         self.sense.when_activated = self.on_closed
         self.sense.when_deactivated = self.on_opened
