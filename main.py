@@ -68,7 +68,7 @@ def main():
 
     nfc_device = configure_nfc_device(config["nfc"])
     homekey_service = configure_homekey_service(config["homekey"], nfc_device)
-    hap_driver, _ = configure_hap_accessory(config["hap"], homekey_service)
+    hap_driver, accessory = configure_hap_accessory(config["hap"], homekey_service)
 
     for s in (signal.SIGINT, signal.SIGTERM):
         signal.signal(
@@ -76,7 +76,9 @@ def main():
             lambda *_: (
                 log.info(f"SIGNAL {s}"),
                 homekey_service.stop(),
+                homekey_service.stop(),
                 hap_driver.stop(),
+                accessory.stop(),
             ),
         )
 
